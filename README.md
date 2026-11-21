@@ -57,4 +57,4 @@ This project gave me an opportunity to apply what I learned in class and continu
 
 ## Author
 
-Created as part of my IT – Programming & Development coursework.
+Created as part of my WCCI coursework.
