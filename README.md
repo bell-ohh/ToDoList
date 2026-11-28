@@ -10,23 +10,27 @@ I created this project as part of my programming capstone to practice my web dev
 
 - Add new tasks to a to-do list.
 - Display tasks on the page.
-- Mark tasks as completed.
+- Edit task names.
+- Mark tasks as active or completed.
+- Filter tasks using **All**, **Active**, and **Completed**.
 - Delete tasks that are no longer needed.
+- Save tasks using `localStorage` so they remain after refreshing the page.
 - Simple and user-friendly design.
 
 ## Technologies Used
 
-- **HTML5:** Creates the structure of the application.
-- **CSS3:** Styles the page and makes it visually appealing.
-- **JavaScript:** Adds functionality and allows users to interact with the to-do list.
+- **HTML5** creates the structure of the application.
+- **CSS3** styles the page and makes it visually appealing.
+- **JavaScript** adds functionality and allows users to interact with the to-do list.
 
 ## How to Use
 
-1. Open the application in a web browser.
-2. Type a task into the input field.
-3. Click the Add Task button to add it to the list.
-4. Mark a task as completed when finished.
-5. Delete tasks you no longer need.
+1. Open the app at [https://bell-ohh.github.io/ToDoList/](https://bell-ohh.github.io/ToDoList/). The page heading says **Today**.
+2. Click **Add a new task...**, type `Finish homework`, and click **+**. Repeat these steps to add `Wash clothes`. Both tasks start as **Active**.
+3. To complete **Finish homework**, click the **Active** dropdown beside its name and choose **Completed**. A line appears through the task name.
+4. Click **Active** above the list to see unfinished tasks, including **Wash clothes**. Click **Completed** to see finished tasks, including **Finish homework**. Click **All** to see both again.
+5. Click **Edit** beside **Wash clothes**, change the name to `Wash towels`, and click **Save**.
+6. Click the **x** beside **Wash towels** to delete it. **Finish homework** stays on the list.
 
 ## Project Goals
 
@@ -44,10 +48,8 @@ While building this project, I focused on:
 
 Some features I would like to add in the future include:
 
-- Saving tasks using localStorage so they remain after refreshing the page.
 - Adding due dates for tasks.
 - Organizing tasks by priority.
-- Filtering tasks by completed and incomplete status.
 
 ## What I Learned
 
