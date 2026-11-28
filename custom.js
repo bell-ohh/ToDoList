@@ -1,290 +1,238 @@
-
- // Get tasks saved in the browser, or start with an empty array.
+// Get tasks saved in the browser, or start with an empty array.
 let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
 
-// Store which task is being edited; null means no task is being edited.
+// Store the position of the task being edited.
 let editingIndex = null;
 
-// Find the HTML element with the ID "list".
+// Start on the All view.
+let currentFilter = "all";
+
+// Find the task list, progress message, empty message, and input.
 const list = document.getElementById("list");
-
-// Find the HTML element that displays the task progress.
 const sub = document.getElementById("sub");
-
-// Find the HTML element that displays the empty-list message.
 const empty = document.getElementById("empty");
-
-// Find the input field where users type new tasks.
 const input = document.getElementById("inp");
 
-// Create a function called save.
-function save() {
-  // Convert the tasks array to JSON text and save it in the browser.
-  localStorage.setItem("tasks", JSON.stringify(tasks));
-} // End the save function.
+// Find the All, Active, and Completed buttons at the top.
+const filterButtons = document.querySelectorAll(".filters button[data-filter]");
 
-// Create a function that updates the displayed task list.
+// Change which tasks are visible when a filter button is clicked.
+filterButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    if (currentFilter === button.dataset.filter) return;
+
+    currentFilter = button.dataset.filter;
+    editingIndex = null;
+
+    // Highlight the selected filter button.
+    filterButtons.forEach((item) => {
+      item.setAttribute("aria-pressed", item === button);
+    });
+
+    render();
+  });
+});
+
+// Save the tasks so they are still there after refreshing the page.
+function save() {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+// Display the tasks that belong in the selected view.
 function render() {
-  // Remove all existing task elements from the list.
   list.innerHTML = "";
 
-  // Loop through every task; t is the task and i is its position.
-  tasks.forEach((t, i) => {
-    // Create a new HTML list item.
+  // Use each task's position in the full array so the controls
+  // still change the correct task when a filter is selected.
+  tasks.forEach((task, i) => {
+    // Active shows only unfinished tasks.
+    if (currentFilter === "active" && task.done) return;
+
+    // Completed shows only finished tasks.
+    if (currentFilter === "completed" && !task.done) return;
+
+    // Create a row for this task.
     const li = document.createElement("li");
 
-    // Check whether the task is completed.
-    if (t.done) {
-      // Add the "done" CSS class to completed tasks.
+    // Apply your existing completed-task style.
+    if (task.done) {
       li.className = "done";
-    } // End the completed-task check.
+    }
 
-    // Check whether this task is currently being edited.
     if (editingIndex === i) {
-      // Create a text input for editing the task.
+      // Show the task's current text in an editing field.
       const editInput = document.createElement("input");
-
-      // Set the input type to text.
       editInput.type = "text";
-
-      // Add a CSS class for styling the editing input.
       editInput.className = "edit-input";
-
-      // Display the task's existing text in the input.
-      editInput.value = t.text;
-
-      // Limit the input to 100 characters.
+      editInput.value = task.text;
       editInput.maxLength = 100;
+      editInput.setAttribute("aria-label", "Edit task name");
 
-      // Create a Save button.
+      // Save the edited task when Save is clicked.
       const saveButton = document.createElement("button");
-
-      // Add a CSS class to the Save button.
+      saveButton.type = "button";
       saveButton.className = "save";
-
-      // Display the word Save on the button.
       saveButton.textContent = "Save";
 
-      // Listen for a click on the Save button.
       saveButton.addEventListener("click", () => {
-        // Save the updated text for this task.
         saveEdit(i, editInput.value);
-      }); // End the Save button click listener.
+      });
 
-      // Create a Cancel button.
+      // Close the editing field when Cancel is clicked.
       const cancelButton = document.createElement("button");
-
-      // Add a CSS class to the Cancel button.
+      cancelButton.type = "button";
       cancelButton.className = "cancel";
-
-      // Display the word Cancel on the button.
       cancelButton.textContent = "Cancel";
-
-      // Run cancelEdit when the Cancel button is clicked.
       cancelButton.addEventListener("click", cancelEdit);
 
-      // Listen for keyboard presses inside the editing input.
-      editInput.addEventListener("keydown", (e) => {
-        // Check whether the Enter key was pressed.
-        if (e.key === "Enter") {
-          // Save the edited task.
+      // Enter saves the change. Escape cancels it.
+      editInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
           saveEdit(i, editInput.value);
-        } // End the Enter key check.
+        }
 
-        // Check whether the Escape key was pressed.
-        if (e.key === "Escape") {
-          // Cancel editing without saving the changes.
+        if (event.key === "Escape") {
           cancelEdit();
-        } // End the Escape key check.
-      }); // End the keyboard listener.
+        }
+      });
 
-      // Add the editing input to the list item.
       li.appendChild(editInput);
-
-      // Add the Save button to the list item.
       li.appendChild(saveButton);
-
-      // Add the Cancel button to the list item.
       li.appendChild(cancelButton);
-
     } else {
-      // Create a div that acts as the task completion box.
-      const box = document.createElement("div");
-
-      // Give the box its CSS class.
-      box.className = "box";
-
-      // Change the task's completion status when clicked.
-      box.addEventListener("click", () => toggle(i));
-
-      // Create a span to display the task text.
+      // Display the task name.
       const span = document.createElement("span");
-
-      // Give the span its CSS class.
       span.className = "txt";
+      span.textContent = task.text;
 
-      // Display the task's text inside the span.
-      span.textContent = t.text;
+      // Give this task its own Active / Completed dropdown.
+      const statusSelect = document.createElement("select");
+      statusSelect.className = "task-status";
+      statusSelect.setAttribute("aria-label", `Status for ${task.text}`);
 
-      // Create an Edit button.
+      // Each task can have one of these two statuses.
+      statusSelect.add(new Option("Active", "active"));
+      statusSelect.add(new Option("Completed", "completed"));
+
+      // Show the task's saved status in its dropdown.
+      statusSelect.value = task.done ? "completed" : "active";
+
+      // Update this task when its dropdown changes.
+      statusSelect.addEventListener("change", () => {
+        task.done = statusSelect.value === "completed";
+        save();
+        render();
+      });
+
+      // Create the Edit button.
       const editButton = document.createElement("button");
-
-      // Give the Edit button its CSS class.
+      editButton.type = "button";
       editButton.className = "edit";
-
-      // Display the word Edit on the button.
       editButton.textContent = "Edit";
-
-      // Start editing this task when clicked.
       editButton.addEventListener("click", () => edit(i));
 
-      // Create a Delete button.
+      // Create the Delete button.
       const deleteButton = document.createElement("button");
-
-      // Give the Delete button its CSS class.
+      deleteButton.type = "button";
       deleteButton.className = "del";
-
-      // Display an x on the Delete button.
       deleteButton.textContent = "x";
-
-      // Remove this task when the Delete button is clicked.
+      deleteButton.setAttribute("aria-label", `Delete ${task.text}`);
       deleteButton.addEventListener("click", () => remove(i));
 
-      // Add the completion box to the list item.
-      li.appendChild(box);
-
-      // Add the task text to the list item.
+      // Display the task name, status dropdown, Edit, and Delete.
       li.appendChild(span);
-
-      // Add the Edit button to the list item.
+      li.appendChild(statusSelect);
       li.appendChild(editButton);
-
-      // Add the Delete button to the list item.
       li.appendChild(deleteButton);
-    } // End the editing condition.
+    }
 
-    // Add the task's list item to the main task list.
+    // Add the finished row to the page.
     list.appendChild(li);
-  }); // End the loop through tasks.
+  });
 
-  // Count the number of completed tasks.
-  const done = tasks.filter((t) => t.done).length;
+  // Count completed tasks across the entire list.
+  const done = tasks.filter((task) => task.done).length;
 
-  // Choose which progress message to display.
   sub.textContent = tasks.length
-    // Display the completed-task count when tasks exist.
     ? `${done} of ${tasks.length} done`
-    // Display instructions when there are no tasks.
     : "Start adding your tasks below.";
 
-  // Hide the empty message when tasks exist, or show it when none exist.
-  empty.style.display = tasks.length ? "none" : "block";
+  // Show a message when the selected view is empty.
+  const emptyMessages = {
+    all: "Nothing here - enjoy the quiet.",
+    active: "No active tasks.",
+    completed: "No completed tasks."
+  };
 
-  // Save the current tasks.
-  save();
-} // End the render function.
+  empty.textContent = emptyMessages[currentFilter];
+  empty.style.display = list.childElementCount ? "none" : "block";
+}
 
-// Create a function to add a new task.
+// Add a new task when the + button is clicked.
 function add() {
-  // Get the text entered into the new-task input.
-  const v = input.value;
+  const text = input.value.trim();
 
-  // Check whether the input is empty.
-  if (!v) {
-    // Stop the function if the input is empty.
-    return;
-  } // End the empty-input check.
+  // Skip an empty task.
+  if (!text) return;
 
-  // Add a new incomplete task to the beginning of the array.
-  tasks.unshift({ text: v, done: false });
+  // Every new task starts as Active.
+  tasks.unshift({ text: text, done: false });
 
-  // Clear the input field.
   input.value = "";
-
-  // Stop editing any previously selected task.
   editingIndex = null;
 
-  // Update the displayed task list.
+  save();
   render();
-} // End the add function.
+}
 
-// Create a function to change a task's completion status.
-function toggle(i) {
-  // Switch the task's done value between true and false.
-  tasks[i].done = !tasks[i].done;
-
-  // Update the displayed task list.
-  render();
-} // End the toggle function.
-
-// Create a function to delete a task.
+// Remove the task whose Delete button was clicked.
 function remove(i) {
-  // Remove one task from the array at position i.
   tasks.splice(i, 1);
-
-  // Exit editing mode.
   editingIndex = null;
 
-  // Update the displayed task list.
+  save();
   render();
-} // End the remove function.
+}
 
-// Create a function to start editing a task.
+// Open the editing field for the selected task.
 function edit(i) {
-  // Store the position of the task being edited.
   editingIndex = i;
-
-  // Update the list to display the editing input.
   render();
 
-  // Find the editing input using its CSS class.
-  const editInput = document.querySelector(".edit-input");
+  const editInput = list.querySelector(".edit-input");
 
-  // Check whether the editing input exists.
   if (editInput) {
-    // Place the cursor inside the input.
     editInput.focus();
-
-    // Highlight the existing text.
     editInput.select();
-  } // End the input check.
-} // End the edit function.
+  }
+}
 
-// Create a function to save changes to a task.
+// Save the new task name.
 function saveEdit(i, newText) {
-  // Check whether the edited text is empty.
-  if (!newText) {
-    // Stop if the user entered no text.
-    return;
-  } // End the empty-text check.
+  const text = newText.trim();
 
-  // Replace the task's existing text with the new text.
-  tasks[i].text = newText;
+  // Keep the editing field open if the name is empty.
+  if (!text) return;
 
-  // Exit editing mode.
+  tasks[i].text = text;
   editingIndex = null;
 
-  // Update the displayed task list and save the changes.
+  save();
   render();
-} // End the saveEdit function.
+}
 
-// Create a function to cancel editing.
+// Close the editing field and show the original task name.
 function cancelEdit() {
-  // Exit editing mode without changing the task text.
   editingIndex = null;
-
-  // Restore the normal task display.
   render();
-} // End the cancelEdit function.
+}
 
-// Listen for keyboard presses in the new-task input.
-input.addEventListener("keydown", (e) => {
-  // Check whether the Enter key was pressed.
-  if (e.key === "Enter") {
-    // Add the new task.
+// Press Enter in the new-task field to add a task.
+input.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
     add();
-  } // End the Enter key check.
-}); // End the keyboard listener.
+  }
+});
 
-// Display the saved tasks when the page first loads.
+// Display saved tasks when the page opens.
 render();

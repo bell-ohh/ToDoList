@@ -1,97 +1,121 @@
-*{
+* {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-
-body{ 
+body {
     font-family: "DM Sans", sans-serif;
-    background-color: #F2EDE4; 
+    background-color: #F2EDE4;
     min-height: 100vh;
     display: flex;
     justify-content: center;
     padding: 4rem 1rem;
 }
 
-.wrap{
+.wrap {
     width: 100%;
     max-width: 480px;
-
 }
 
-h1{
-    font-family: 'Fraumces', serif;
+/* Page title and task count */
+h1 {
+    font-family: "Fraunces", serif;
     font-weight: 300;
     font-size: 3rem;
     color: #1E1810;
     margin-bottom: 0.2rem;
 }
 
-
-h1 i{
+h1 i {
     font-style: italic;
     color: #C04822;
 }
 
-
-.sub{
+.sub {
     font-size: 13px;
     color: #A0917F;
     margin-bottom: 2rem;
 }
 
-
-.input-row{
+/* New-task input and + button */
+.input-row {
     display: flex;
+    align-items: center;
     gap: 0.5rem;
-    background-color: #f8f8f3;
+    background-color: #F8F8F3;
     border: 1px solid #DDD5CB;
     border-radius: 12px;
     padding: 0.6rem 0.6rem 0.6rem 1rem;
     margin-bottom: 1.5rem;
 }
 
-
-input{ 
+input {
     flex: 1;
+    min-width: 0;
     border: none;
     background-color: transparent;
-    font-family: 'DM Sans', sans-serif;
+    font-family: inherit;
     font-size: 15px;
     color: #1E1810;
-    outline: none;
-
 }
 
-input::placeholder{
-    color: #c0B4a4;
+input::placeholder {
+    color: #C0B4A4;
     font-style: italic;
-
 }
 
-button.add{
-    background: #c04b22;
-    color: white;
-    border: none;
-    outline: none;
-    border-radius: 8px;
+button.add {
+    flex-shrink: 0;
     width: 36px;
     height: 36px;
+    background: #C04B22;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
     font-size: 22px;
     cursor: pointer;
-    transition: background .15s transform .1s;
+    transition: background-color 0.15s, transform 0.1s;
 }
 
-button.add:hover{
-background: #A33A16;
+button.add:hover {
+    background-color: #A33A16;
 }
 
-button.add#active{
-    transform: scale(0.93)
+button.add:active {
+    transform: scale(0.93);
 }
 
-ul{
+/* All, Active, and Completed filter buttons */
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 1rem;
+}
+
+.filters button {
+    padding: 8px 16px;
+    border: 1px solid #A0917F;
+    border-radius: 8px;
+    background-color: #F8F8F3;
+    color: #1E1810;
+    font: inherit;
+    cursor: pointer;
+}
+
+.filters button:hover {
+    border-color: #A33A16;
+}
+
+.filters button[aria-pressed="true"] {
+    background-color: #A33A16;
+    border-color: #A33A16;
+    color: #FFFFFF;
+}
+
+/* Task list */
+#list {
     list-style: none;
     max-height: 340px;
     overflow-y: auto;
@@ -99,112 +123,113 @@ ul{
     scrollbar-color: #DDD5CB transparent;
 }
 
-ul::-webkit-scrollbar{
-    width: 4px;
-}
-
-ul::-webkit-scrollbar-thumb{
-    background: #ddd5cb;
-    border-radius: 99px;
-}
-
-
-li{
+#list li {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     padding: 0.85rem 0;
     border-bottom: 1px solid #E2D9CE;
-    animation: in .2s ease;
+    animation: in 0.2s ease;
 }
 
-
 @keyframes in {
-    from{
+    from {
         opacity: 0;
         transform: translateY(-6px);
     }
 }
 
-li input[type-checkbox]{
-    display: none;
+/* Give the task name the available space and let long names wrap. */
+#list .txt {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: 15px;
+    color: #1E1810;
 }
 
-
-.box{
-    width: 20px;
-    height: 20px;
-    border: 1.5px solid #c0b4a4;
-    border-radius: 6px;
-    flex-shrink: 0;
-    cursor: pointer;
-    display: grid;
-    place-items: center;
-    transition: all 0.2s;
-}
-
-li.done .box{
-    background: #4A6761;
-    border-color: #4A6761;
-}
-
-li.done .box::after{
-    content: "✔";
-    color: #ffffff;
-    font-size: 12px;
-    font-weight: 500;
-}
-
-li.done span{
-    color: #b0a494;
+#list li.done .txt {
+    color: #B0A494;
     text-decoration: line-through;
 }
 
-span.text{
-    flex: 1;
-    font-size: 15px;
-    color: #1e1810;
-}
-
-
-button.del{ 
-    background: none;
-    border: none;
-    color: #C0B4A4;
-    cursor: pointer;
-    font-size: 18px;
-    line-height: 1;
-    padding: 2px 4px;
-    border-radius: 6px;
-    opacity: 0;
-    transition: opacity .15s, color .15s;
-}
-
-li:hover button.del{
-    opacity: 1;
-}
-
-button.del:hover{
-    color: #c04b22;
-}
-
-.empty{
-    text-align: center;
-    padding: 3rem 0;
-    color: #c0b4a4;
-    font-style: italic;
-    display: none;
-}
-
-.edit{
-       background: #c04b22;
-    color: white;
-    border: none;
-    outline: none;
+/* The Active / Completed dropdown beside each task */
+#list .task-status {
+    flex-shrink: 0;
+    min-height: 32px;
+    padding: 4px 6px;
+    border: 1px solid #A0917F;
     border-radius: 8px;
-    width: 36px;
-    height: 36px;
-    font-size: 22px;
+    background-color: #F8F8F3;
+    color: #1E1810;
+    font-family: inherit;
+    font-size: 14px;
     cursor: pointer;
-    transition: background .15s transform .1s;
+}
+
+#list li.done .task-status {
+    border-color: #4A6761;
+    color: #4A6761;
+}
+
+/* Edit, Delete, Save, and Cancel buttons */
+#list button {
+    flex-shrink: 0;
+    min-height: 32px;
+    padding: 4px 10px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#list .edit,
+#list .save {
+    background-color: #4A6761;
+    color: #FFFFFF;
+}
+
+#list .del,
+#list .cancel {
+    background-color: #F8F8F3;
+    border-color: #A33A16;
+    color: #A33A16;
+}
+
+/* Text field shown while editing a task */
+#list .edit-input {
+    min-height: 32px;
+    padding: 4px 8px;
+    border: 1px solid #A0917F;
+    border-radius: 8px;
+    background-color: #F8F8F3;
+}
+
+.empty {
+    display: none;
+    padding: 3rem 0;
+    text-align: center;
+    color: #A0917F;
+    font-style: italic;
+}
+
+/* Show keyboard focus on buttons, dropdowns, and text fields. */
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+    outline: 2px solid #1E1810;
+    outline-offset: 2px;
+}
+
+/* On narrow screens, give the task name its own line. */
+@media (max-width: 420px) {
+    #list li {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    #list .txt {
+        flex-basis: 100%;
+    }
 }
